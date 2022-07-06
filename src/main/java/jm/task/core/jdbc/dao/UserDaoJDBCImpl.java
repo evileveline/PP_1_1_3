@@ -16,9 +16,16 @@ public class UserDaoJDBCImpl implements UserDao {
     @Override
     public void createUsersTable() {
         try (Statement statement = connection.createStatement()) {
+            connection.setAutoCommit(false);
             String createUsersTable = "CREATE TABLE IF NOT EXISTS `mydbtest`.`users` (`id` BIGINT NOT NULL AUTO_INCREMENT,`name` VARCHAR(100) NOT NULL,`lastName` VARCHAR(100) NULL,`age` INT(3) NOT NULL, PRIMARY KEY (`id`))";
             statement.executeUpdate(createUsersTable);
+            connection.commit();
         } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
             e.getStackTrace();
         }
         System.out.println("Таблица создана.");
@@ -28,8 +35,15 @@ public class UserDaoJDBCImpl implements UserDao {
     public void dropUsersTable() {
         String dropUsersTable = "DROP TABLE IF EXISTS users";
         try (Statement statement = connection.createStatement()) {
+            connection.setAutoCommit(false);
             statement.execute(dropUsersTable);
+            connection.commit();
         } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
             e.getStackTrace();
         }
         System.out.println("Таблица удалена.");
@@ -38,11 +52,18 @@ public class UserDaoJDBCImpl implements UserDao {
     @Override
     public void saveUser(String name, String lastName, byte age) {
         try (PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO users (name, lastName, age) VALUES (?, ?, ?)")) {
+            connection.setAutoCommit(false);
             preparedStatement.setString(1, name);
             preparedStatement.setString(2, lastName);
             preparedStatement.setByte(3, age);
             preparedStatement.executeUpdate();
+            connection.commit();
         } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
             e.getStackTrace();
         }
         System.out.println("Пользователь c именем " + name + " " + lastName + " был добавлен.");
@@ -51,9 +72,16 @@ public class UserDaoJDBCImpl implements UserDao {
     @Override
     public void removeUserById(long id) {
         try (PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM users WHERE Id = ?")) {
+            connection.setAutoCommit(false);
             preparedStatement.setLong(1, id);
             preparedStatement.executeUpdate();
+            connection.commit();
         } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
             e.getStackTrace();
         }
     }
@@ -64,8 +92,9 @@ public class UserDaoJDBCImpl implements UserDao {
         String getAllUsers = "SELECT * FROM users";
 
         try (Statement statement = connection.createStatement()) {
+            connection.setAutoCommit(false);
             ResultSet resultSet = statement.executeQuery(getAllUsers);
-
+            connection.commit();
             while (resultSet.next()) {
                 User user = new User();
                 user.setId(resultSet.getLong("id"));
@@ -75,6 +104,11 @@ public class UserDaoJDBCImpl implements UserDao {
                 userList.add(user);
             }
         } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
             e.getStackTrace();
         }
         System.out.println("Список пользователей готов:");
@@ -84,8 +118,15 @@ public class UserDaoJDBCImpl implements UserDao {
     @Override
     public void cleanUsersTable() {
         try (Statement statement = connection.createStatement()) {
+            connection.setAutoCommit(false);
             statement.execute("TRUNCATE TABLE users");
+            connection.commit();
         } catch (SQLException e) {
+            try {
+                connection.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
             e.getStackTrace();
         }
     }
