@@ -23,7 +23,6 @@ public class Util {
 
         try {
             connection = DriverManager.getConnection(URL, USERNAME, PASS);
-            Statement statement = connection.createStatement();
         } catch (SQLException e1) {
             e1.printStackTrace();
         }
